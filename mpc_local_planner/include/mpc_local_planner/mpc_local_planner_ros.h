@@ -59,9 +59,7 @@
 
 // dynamic reconfigure
 #include <dynamic_reconfigure/server.h>
-#include <mpc_local_planner/ControllerReconfigureConfig.h>
-#include <mpc_local_planner/CollisionReconfigureConfig.h>
-#include <mpc_local_planner/FootprintReconfigureConfig.h>
+#include <mpc_local_planner/MpcLocalPlannerReconfigureConfig.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -271,25 +269,7 @@ class MpcLocalPlannerROS : public nav_core::BaseLocalPlanner, public mbf_costmap
      * @param config Reference to the dynamic reconfigure config
      * @param level Dynamic reconfigure level
      */
-    void reconfigureControllerCB(ControllerReconfigureConfig& config, uint32_t level);
-
-    /**
-     * @brief Callback for the dynamic_reconfigure collision node.
-     *
-     * This callback allows to modify parameters dynamically at runtime without restarting the node
-     * @param config Reference to the dynamic reconfigure config
-     * @param level Dynamic reconfigure level
-     */
-    void reconfigureCollisionCB(CollisionReconfigureConfig& config, uint32_t level);
-
-    /**
-     * @brief Callback for the dynamic_reconfigure footprint collision node.
-     *
-     * This callback allows to modify parameters dynamically at runtime without restarting the node
-     * @param config Reference to the dynamic reconfigure config
-     * @param level Dynamic reconfigure level
-     */
-    void reconfigureFootprintCB(FootprintReconfigureConfig& config, uint32_t level);
+    void reconfigureCB(MpcLocalPlannerReconfigureConfig& config, uint32_t level);
 
     /**
      * @brief Callback for custom obstacles that are not obtained from the costmap
@@ -398,12 +378,8 @@ class MpcLocalPlannerROS : public nav_core::BaseLocalPlanner, public mbf_costmap
     pluginlib::ClassLoader<costmap_converter::BaseCostmapToPolygons> _costmap_converter_loader;  //!< Load costmap converter plugins at runtime
     boost::shared_ptr<costmap_converter::BaseCostmapToPolygons> _costmap_converter;              //!< Store the current costmap_converter
 
-    boost::shared_ptr<dynamic_reconfigure::Server<ControllerReconfigureConfig>>
-        dynamic_controller_recfg_;                             //!< Dynamic reconfigure server to allow config modifications at runtime
-    boost::shared_ptr<dynamic_reconfigure::Server<CollisionReconfigureConfig>>
-        dynamic_collision_recfg_;                              //!< Dynamic reconfigure server to allow config modifications at runtime
-    boost::shared_ptr<dynamic_reconfigure::Server<FootprintReconfigureConfig>>
-        dynamic_footprint_recfg_;                              //!< Dynamic reconfigure server to allow config modifications at runtime
+    boost::shared_ptr<dynamic_reconfigure::Server<MpcLocalPlannerReconfigureConfig>>
+        dynamic_recfg_;                                        //!< Dynamic reconfigure server to allow config modifications at runtime
     ros::Subscriber _custom_obst_sub;                          //!< Subscriber for custom obstacles received via a ObstacleMsg.
     std::mutex _custom_obst_mutex;                             //!< Mutex that locks the obstacle array (multi-threaded)
     costmap_converter::ObstacleArrayMsg _custom_obstacle_msg;  //!< Copy of the most recent obstacle message

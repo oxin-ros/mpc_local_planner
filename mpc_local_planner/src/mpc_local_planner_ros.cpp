@@ -46,9 +46,7 @@ MpcLocalPlannerROS::MpcLocalPlannerROS()
       _tf(nullptr),
       _costmap_model(nullptr),
       _costmap_converter_loader("costmap_converter", "costmap_converter::BaseCostmapToPolygons"),
-      dynamic_controller_recfg_(NULL),
-      dynamic_collision_recfg_(NULL),
-      dynamic_footprint_recfg_(NULL),
+      dynamic_recfg_(NULL),
       _goal_reached(false),
       _no_infeasible_plans(0),
       /*last_preferred_rotdir_(RotType::none),*/
@@ -58,7 +56,7 @@ MpcLocalPlannerROS::MpcLocalPlannerROS()
 
 MpcLocalPlannerROS::~MpcLocalPlannerROS() {}
 
-void MpcLocalPlannerROS::reconfigureControllerCB(ControllerReconfigureConfig& config, uint32_t level)
+void MpcLocalPlannerROS::reconfigureCB(MpcLocalPlannerReconfigureConfig& config, uint32_t level)
 {
     boost::mutex::scoped_lock l(config_mutex_);
 
@@ -68,18 +66,8 @@ void MpcLocalPlannerROS::reconfigureControllerCB(ControllerReconfigureConfig& co
     _params.global_plan_prune_distance             = config.global_plan_prune_distance;
     _params.max_global_plan_lookahead_dist         = config.max_global_plan_lookahead_dist;
     _params.global_plan_viapoint_sep               = config.global_plan_viapoint_sep;
-}
-
-void MpcLocalPlannerROS::reconfigureFootprintCB(FootprintReconfigureConfig& config, uint32_t level)
-{
-    boost::mutex::scoped_lock l(config_mutex_);
 
     _params.is_footprint_dynamic                   = config.is_footprint_dynamic;
-}
-
-void MpcLocalPlannerROS::reconfigureCollisionCB(CollisionReconfigureConfig& config, uint32_t level)
-{
-    boost::mutex::scoped_lock l(config_mutex_);
 
     _params.include_costmap_obstacles              = config.include_costmap_obstacles;
     _params.costmap_obstacles_behind_robot_dist    = config.costmap_obstacles_behind_robot_dist;
@@ -187,23 +175,10 @@ void MpcLocalPlannerROS::initialize(std::string name, tf2_ros::Buffer* tf, costm
         _odom_helper.setOdomTopic(_params.odom_topic);
 
         // setup dynamic reconfigure
-        ros::NodeHandle controller_nh(nh, "controller");
-        dynamic_controller_recfg_ = boost::make_shared<dynamic_reconfigure::Server<ControllerReconfigureConfig>>(controller_nh);
-        dynamic_reconfigure::Server<ControllerReconfigureConfig>::CallbackType controller_cb =
-            boost::bind(&MpcLocalPlannerROS::reconfigureControllerCB, this, _1, _2);
-        dynamic_controller_recfg_->setCallback(controller_cb);
-
-        ros::NodeHandle collision_nh(nh, "collision");
-        dynamic_collision_recfg_ = boost::make_shared<dynamic_reconfigure::Server<CollisionReconfigureConfig>>(collision_nh);
-        dynamic_reconfigure::Server<CollisionReconfigureConfig>::CallbackType collision_cb =
-            boost::bind(&MpcLocalPlannerROS::reconfigureCollisionCB, this, _1, _2);
-        dynamic_collision_recfg_->setCallback(collision_cb);
-
-        ros::NodeHandle footprint_nh(nh, "footprint_model");
-        dynamic_footprint_recfg_ = boost::make_shared<dynamic_reconfigure::Server<FootprintReconfigureConfig>>(footprint_nh);
-        dynamic_reconfigure::Server<FootprintReconfigureConfig>::CallbackType footprint_cb =
-            boost::bind(&MpcLocalPlannerROS::reconfigureFootprintCB, this, _1, _2);
-        dynamic_footprint_recfg_->setCallback(footprint_cb);
+        dynamic_recfg_ = boost::make_shared<dynamic_reconfigure::Server<MpcLocalPlannerReconfigureConfig>>(nh);
+        dynamic_reconfigure::Server<MpcLocalPlannerReconfigureConfig>::CallbackType cb =
+            boost::bind(&MpcLocalPlannerROS::reconfigureCB, this, _1, _2);
+        dynamic_recfg_->setCallback(cb);
 
         // validate optimization footprint and costmap footprint
         validateFootprints(_robot_model->getInscribedRadius(), _robot_inscribed_radius, _controller.getInequalityConstraint()->getMinimumDistance());
