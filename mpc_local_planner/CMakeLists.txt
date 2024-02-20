@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.11)
 project(mpc_local_planner)
 
 # Set to Release in order to speed up the program significantly
@@ -12,6 +12,7 @@ add_compile_options(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   base_local_planner
+  # control_box_rst
   costmap_2d
   costmap_converter
   dynamic_reconfigure
@@ -206,13 +207,20 @@ add_executable(test_mpc_optim_node src/test_mpc_optim_node.cpp)
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_dependencies(mpc_local_planner_utils corbo_core corbo_systems)
+add_dependencies(mpc_local_planner_utils
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+  corbo_core
+  corbo_systems
+)
 target_link_libraries(mpc_local_planner_utils
+  ${catkin_LIBRARIES}
   corbo_core
   corbo_systems
 )
 
 target_link_libraries(mpc_local_planner_optimal_control
+  ${catkin_LIBRARIES}
   corbo_optimal_control
 )
 

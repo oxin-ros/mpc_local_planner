@@ -18,17 +18,11 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>roscpp</build_depend>
   <build_depend>tf2_eigen</build_depend>
   <build_depend>tf2_geometry_msgs</build_depend>
 
-  <build_export_depend>roscpp</build_export_depend>
-
-  <exec_depend>roscpp</exec_depend>
-
-  <depend>control_box_rst</depend>
-
   <depend>base_local_planner</depend>
+  <depend>control_box_rst</depend>
   <depend>costmap_2d</depend>
   <depend>costmap_converter</depend>
   <depend>dynamic_reconfigure</depend>
@@ -41,6 +35,7 @@
   <depend>mbf_msgs</depend>
   <depend>mpc_local_planner_msgs</depend>
   <depend>pluginlib</depend>
+  <depend>roscpp</depend>
   <depend>std_msgs</depend>
   <depend>teb_local_planner</depend>
   <depend>tf2</depend>
