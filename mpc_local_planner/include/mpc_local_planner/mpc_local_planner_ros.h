@@ -417,6 +417,7 @@ class MpcLocalPlannerROS : public nav_core::BaseLocalPlanner, public mbf_costmap
         bool global_plan_overwrite_orientation        = true;
         double global_plan_prune_distance             = 1.0;
         double max_global_plan_lookahead_dist         = 1.5;
+        double max_vel_x                              = 1.0;
         bool is_footprint_dynamic                     = false;
         bool include_costmap_obstacles                = true;
         double costmap_obstacles_behind_robot_dist    = 1.5;

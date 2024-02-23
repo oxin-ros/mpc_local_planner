@@ -73,6 +73,20 @@ void MpcLocalPlannerROS::reconfigureCB(MpcLocalPlannerReconfigureConfig& config,
     _params.costmap_obstacles_behind_robot_dist    = config.costmap_obstacles_behind_robot_dist;
     _params.collision_check_min_resolution_angular = config.collision_check_min_resolution_angular;
     _params.collision_check_no_poses               = config.collision_check_no_poses;
+
+    if (config.max_vel_x != _params.max_vel_x)
+    {
+        _params.max_vel_x = config.max_vel_x;
+        ROS_INFO("Reconfigure mpc_local_planner: Setting max_vel_x to %.2f", config.max_vel_x);
+        _controller.setMaxVelocity(config.max_vel_x);
+
+        // recreate the planner instance
+        if (!_controller.configure(nh, _obstacles, _robot_model, _via_points, _params))
+        {
+            ROS_ERROR("Controller configuration failed.");
+            return;
+        }
+    }
 }
 
 void MpcLocalPlannerROS::initialize(std::string name, tf2_ros::Buffer* tf, costmap_2d::Costmap2DROS* costmap_ros)
@@ -129,7 +143,7 @@ void MpcLocalPlannerROS::initialize(std::string name, tf2_ros::Buffer* tf, costm
         _robot_model = getRobotFootprintFromParamServer(nh, _costmap_ros);
 
         // create the planner instance
-        if (!_controller.configure(nh, _obstacles, _robot_model, _via_points))
+        if (!_controller.configure(nh, _obstacles, _robot_model, _via_points, _params))
         {
             ROS_ERROR("Controller configuration failed.");
             return;

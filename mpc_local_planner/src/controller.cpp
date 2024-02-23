@@ -56,7 +56,9 @@
 namespace mpc_local_planner {
 
 bool Controller::configure(ros::NodeHandle& nh, const teb_local_planner::ObstContainer& obstacles,
-                           teb_local_planner::RobotFootprintModelPtr robot_model, const std::vector<teb_local_planner::PoseSE2>& via_points)
+                           teb_local_planner::RobotFootprintModelPtr robot_model,
+                           const std::vector<teb_local_planner::PoseSE2>& via_points,
+                           )
 {
     _dynamics = configureRobotDynamics(nh);
     if (!_dynamics) return false;  // we may need state and control dimensions to check other parameters
@@ -71,7 +73,7 @@ bool Controller::configure(ros::NodeHandle& nh, const teb_local_planner::ObstCon
     nh.param("controller/outer_ocp_iterations", outer_ocp_iterations, outer_ocp_iterations);
     setNumOcpIterations(outer_ocp_iterations);
 
-    // further goal opions
+    // further goal options
     nh.param("controller/force_reinit_new_goal_dist", _force_reinit_new_goal_dist, _force_reinit_new_goal_dist);
     nh.param("controller/force_reinit_new_goal_angular", _force_reinit_new_goal_angular, _force_reinit_new_goal_angular);
 
@@ -524,12 +526,11 @@ corbo::StructuredOptimalControlProblem::Ptr Controller::configureOcp(const ros::
         double max_steering_angle = 1.5;
         nh.param("robot/simple_car/max_steering_angle", max_steering_angle, max_steering_angle);
 
-        ocp->setControlBounds(Eigen::Vector2d(-max_vel_x_backwards, -max_steering_angle), Eigen::Vector2d(max_vel_x, max_steering_angle));
+        ocp->setControlBounds(Eigen::Vector2d(-max_vel_x_backwards, -max_steering_angle), Eigen::Vector2d(_params.max_vel_x, max_steering_angle));
     }
     else if (_robot_type == "kinematic_bicycle_vel_input")
     {
-        double max_vel_x = 0.4;
-        nh.param("robot/kinematic_bicycle_vel_input/max_vel_x", max_vel_x, max_vel_x);
+        nh.param("robot/kinematic_bicycle_vel_input/max_vel_x", _params.max_vel_x, _params.max_vel_x);
         double max_vel_x_backwards = 0.2;
         nh.param("robot/kinematic_bicycle_vel_input/max_vel_x_backwards", max_vel_x_backwards, max_vel_x_backwards);
         if (max_vel_x_backwards < 0)
@@ -540,7 +541,7 @@ corbo::StructuredOptimalControlProblem::Ptr Controller::configureOcp(const ros::
         double max_steering_angle = 1.5;
         nh.param("robot/kinematic_bicycle_vel_input/max_steering_angle", max_steering_angle, max_steering_angle);
 
-        ocp->setControlBounds(Eigen::Vector2d(-max_vel_x_backwards, -max_steering_angle), Eigen::Vector2d(max_vel_x, max_steering_angle));
+        ocp->setControlBounds(Eigen::Vector2d(-max_vel_x_backwards, -max_steering_angle), Eigen::Vector2d(_params.max_vel_x, max_steering_angle));
     }
     else
     {
