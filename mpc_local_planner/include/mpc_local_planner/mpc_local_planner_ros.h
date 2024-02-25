@@ -59,7 +59,7 @@
 
 // dynamic reconfigure
 #include <dynamic_reconfigure/server.h>
-#include <mpc_local_planner/MpcLocalPlannerReconfigureConfig.h>
+#include <mpc_local_planner/MpcLocalPlannerConfig.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -269,7 +269,7 @@ class MpcLocalPlannerROS : public nav_core::BaseLocalPlanner, public mbf_costmap
      * @param config Reference to the dynamic reconfigure config
      * @param level Dynamic reconfigure level
      */
-    void reconfigureCB(MpcLocalPlannerReconfigureConfig& config, uint32_t level);
+    void reconfigureCB(MpcLocalPlannerConfig& config, uint32_t level);
 
     /**
      * @brief Callback for custom obstacles that are not obtained from the costmap
@@ -378,7 +378,7 @@ class MpcLocalPlannerROS : public nav_core::BaseLocalPlanner, public mbf_costmap
     pluginlib::ClassLoader<costmap_converter::BaseCostmapToPolygons> _costmap_converter_loader;  //!< Load costmap converter plugins at runtime
     boost::shared_ptr<costmap_converter::BaseCostmapToPolygons> _costmap_converter;              //!< Store the current costmap_converter
 
-    boost::shared_ptr<dynamic_reconfigure::Server<MpcLocalPlannerReconfigureConfig>>
+    boost::shared_ptr<dynamic_reconfigure::Server<MpcLocalPlannerConfig>>
         dynamic_recfg_;                                        //!< Dynamic reconfigure server to allow config modifications at runtime
     ros::Subscriber _custom_obst_sub;                          //!< Subscriber for custom obstacles received via a ObstacleMsg.
     std::mutex _custom_obst_mutex;                             //!< Mutex that locks the obstacle array (multi-threaded)

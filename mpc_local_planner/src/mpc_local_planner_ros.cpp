@@ -56,7 +56,7 @@ MpcLocalPlannerROS::MpcLocalPlannerROS()
 
 MpcLocalPlannerROS::~MpcLocalPlannerROS() {}
 
-void MpcLocalPlannerROS::reconfigureCB(MpcLocalPlannerReconfigureConfig& config, uint32_t level)
+void MpcLocalPlannerROS::reconfigureCB(MpcLocalPlannerConfig& config, uint32_t level)
 {
     boost::mutex::scoped_lock l(config_mutex_);
 
@@ -175,8 +175,8 @@ void MpcLocalPlannerROS::initialize(std::string name, tf2_ros::Buffer* tf, costm
         _odom_helper.setOdomTopic(_params.odom_topic);
 
         // setup dynamic reconfigure
-        dynamic_recfg_ = boost::make_shared<dynamic_reconfigure::Server<MpcLocalPlannerReconfigureConfig>>(nh);
-        dynamic_reconfigure::Server<MpcLocalPlannerReconfigureConfig>::CallbackType cb =
+        dynamic_recfg_ = boost::make_shared<dynamic_reconfigure::Server<MpcLocalPlannerConfig>>(nh);
+        dynamic_reconfigure::Server<MpcLocalPlannerConfig>::CallbackType cb =
             boost::bind(&MpcLocalPlannerROS::reconfigureCB, this, _1, _2);
         dynamic_recfg_->setCallback(cb);
 
